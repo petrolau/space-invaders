@@ -14,6 +14,11 @@ screen = pygame.display.set_mode((800,600))
 
 background = pygame.image.load('background.png')
 
+#Background Sound
+
+mixer.music.load('background.wav')
+mixer.music.play(-1)
+
 #Titulo e Icone
 
 pygame.display.set_caption("Space Invaders")
@@ -62,10 +67,16 @@ font = pygame.font.Font('freesansbold.ttf',32)
 textX = 10
 textY = 10
 
+#Game Over text
+over_font = pygame.font.Font('freesansbold.ttf',64)
+
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255,255,255))
     screen.blit(score,(x, y))
 
+def game_over_text():
+    over_text = over_font('GAME OVER',True,(255,255,255))
+    screen.blit(over_text,(200,250))
 
 def player(x, y):
     #desenhando a imagem do player
@@ -108,6 +119,8 @@ while running:
                 playerX_change = 5
             if event.key == pygame.K_SPACE:
                 if bullet_state == "ready":
+                    bullet_sound = mixer.Sound('laser.wav')
+                    bullet_sound.play(-1)
                     #pega a coordenada atual x da nave
                     bulletX = playerX
                     fire_bullet(bulletX,bulletY)
@@ -131,6 +144,15 @@ while running:
     #Movimento do inimigo.
 
     for i in range (num_of_enemies):
+
+        #Game Over
+
+        if enemyY[i] > 200:
+            for j in range(num_of_enemies):
+                enemyY[j]= 2000
+            game_over_text()
+            break
+
         enemyX[i] += enemyX_change[i]
 
         if enemyX[i] <= 0:
@@ -144,6 +166,8 @@ while running:
 
         collision = is_collision(enemyX[i],enemyY[i],bulletX,bulletY)
         if collision:
+            explosion_sound = mixer.Sound('explosion.wav')
+            explosion_sound.play(-1)
             bulletY = 480
             bullet_state = "ready"
             score_value += 1
